@@ -43,7 +43,7 @@ export default function RegisterForm() {
     onError: (err) => {
       if (err.response) {
         const data = err.response.data;
-        toast.success(data.message, { position: "top-right" });
+        toast.error(data.message, { position: "top-right" });
       }
     },
   });

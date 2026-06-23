@@ -12,3 +12,5 @@ export type RegisterPayload = {
   password: string;
   role: "ADMIN" | "NON_ADMIN";
 };
+
+export type LoginPayload = Pick<RegisterPayload, "email" | "password">;
