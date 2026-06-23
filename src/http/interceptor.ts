@@ -16,11 +16,16 @@ type FailedQueue = {
 
 let isRefreshing = false;
 let failedQueue: FailedQueue[] = [];
+
 const processQueue = (error: unknown, newToken: string | null = null) => {
   failedQueue.forEach((promise) => {
-    if (error) promise.reject(error);
-    promise.resolve(newToken);
+    if (error) {
+      promise.reject(error);
+    } else {
+      promise.resolve(newToken);
+    }
   });
+  failedQueue = [];
 };
 
 apiClient.defaults.withCredentials = true;
@@ -38,7 +43,7 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status == 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -49,35 +54,37 @@ apiClient.interceptors.response.use(
           })
           .catch((err) => Promise.reject(err));
       }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const response = await axios.post(
+          "http://localhost:8080/api/authentication/refresh-token",
+          {},
+          {
+            withCredentials: true,
+          },
+        );
+        const data = response.data.data;
+        const newAccessToken = data.accessToken;
+
+        window.localStorage.setItem("accessToken", newAccessToken);
+        processQueue(null, newAccessToken);
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+        return apiClient(originalRequest);
+      } catch (err) {
+        processQueue(err, null);
+        window.localStorage.removeItem("accessToken");
+        // window.location.href = "/authentication/login";
+
+        return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
+      }
     }
 
-    originalRequest._retry = true;
-    isRefreshing = true;
-
-    try {
-      const response = await axios.post(
-        "/refresh-token",
-        {},
-        {
-          withCredentials: true,
-        },
-      );
-      const data = response.data.data;
-      const newAccessToken = data.accessToken;
-
-      window.localStorage.setItem("accessToken", newAccessToken);
-      processQueue(null, newAccessToken);
-      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
-      return apiClient(originalRequest);
-    } catch (err) {
-      processQueue(err, null);
-      window.localStorage.removeItem("accessToken");
-      window.location.href = "/authentication/login";
-
-      return Promise.reject(err);
-    } finally {
-      isRefreshing = false;
-    }
+    return Promise.reject(error);
   },
 );
