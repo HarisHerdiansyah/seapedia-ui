@@ -162,7 +162,7 @@ export default function HomePage() {
           {mockProducts.map((product) => (
             <div
               key={product.id}
-              className="rounded-2xl border border-gray-300 overflow-hidden"
+              className="rounded-2xl overflow-hidden shadow-sm border border-border/50"
             >
               <div className="relative h-44">
                 <Image
