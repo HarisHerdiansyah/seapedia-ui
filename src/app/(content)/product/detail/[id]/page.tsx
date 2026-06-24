@@ -131,7 +131,7 @@ export default function ProductDetailPage() {
 
   return (
     <>
-      <div className="my-8 max-w-7xl mx-auto">
+      <div className="my-8 mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
           <div className="bg-white rounded-2xl p-4 shadow-sm border border-border/50">
             <div className="relative w-full aspect-square rounded-xl overflow-hidden">
@@ -139,6 +139,7 @@ export default function ProductDetailPage() {
                 src="https://placehold.co/400/ecfdf5/007a55.avif"
                 alt="Kaos Polos Cotton Combed 30s Pria"
                 className="object-cover"
+                loading="eager"
                 fill
               />
             </div>
@@ -259,6 +260,7 @@ export default function ProductDetailPage() {
                   src="https://placehold.co/250/ecfdf5/007a55.avif"
                   alt="Product"
                   className="object-cover"
+                  loading="lazy"
                   fill
                 />
               </div>
