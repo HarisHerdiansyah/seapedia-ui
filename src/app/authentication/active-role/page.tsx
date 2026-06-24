@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -6,9 +8,65 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { selectRoleFn } from "@/http/authentication";
+import { ApiResponse, SelectRolePayload } from "@/http/types";
+import { useMutation } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
+const activeRoleCard = [
+  {
+    role: "BUYER",
+    label: "Buyer",
+    image: "/buyer-role.svg",
+  },
+  {
+    role: "SELLER",
+    label: "Seller",
+    image: "/seller-role.svg",
+  },
+  {
+    role: "DRIVER",
+    label: "Driver",
+    image: "/driver-role.svg",
+  },
+];
 
 export default function ActiveRolePage() {
+  const userData = JSON.parse(window.localStorage.getItem("userData") || "{}");
+  const isIncludes = (role: string) => userData.allowedAs.includes(role);
+
+  const router = useRouter();
+
+  const { mutate } = useMutation<
+    any,
+    AxiosError<ApiResponse>,
+    SelectRolePayload
+  >({
+    mutationFn: selectRoleFn,
+    onSuccess: (data) => {
+      const payload = data.data;
+      const updated = { ...userData, role: payload.activeRole };
+      window.localStorage.setItem("userData", JSON.stringify(updated));
+      router.push("/profile");
+    },
+    onError: (err) => {
+      if (err.response) {
+        toast.error(err.response.data.message, { position: "top-right" });
+      }
+    },
+  });
+
+  const onRoleSelected = (role: string) => {
+    if (!isIncludes(role)) {
+      alert("Implement soon");
+      return;
+    }
+    mutate({ activeRole: role });
+  };
+
   return (
     <div className="w-full h-screen flex items-center justify-center">
       <div className="max-w-3xl w-full shrink-0">
@@ -20,50 +78,32 @@ export default function ActiveRolePage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-3 gap-4">
-              <Card className="cursor-pointer bg-primary-foreground border border-primary">
-                <CardContent className="relative h-32">
-                  <Image
-                    src="/buyer-role.svg"
-                    alt="Buyer"
-                    className="object-contain"
-                    fill
-                  />
-                </CardContent>
-                <CardFooter className="justify-center">
-                  <p className="text-lg">Buyer</p>
-                </CardFooter>
-              </Card>
-              <Card className="cursor-pointer">
-                <CardContent className="relative h-32">
-                  <Image
-                    src="/seller-role.svg"
-                    alt="Seller"
-                    className="object-contain"
-                    fill
-                  />
-                </CardContent>
-                <CardFooter className="justify-center">
-                  <p className="text-lg">Seller</p>
-                </CardFooter>
-              </Card>
-              <Card className="cursor-pointer">
-                <CardContent className="relative h-32">
-                  <Image
-                    src="/driver-role.svg"
-                    alt="Driver"
-                    className="object-contain"
-                    fill
-                  />
-                </CardContent>
-                <CardFooter className="justify-center">
-                  <p className="text-lg">Driver</p>
-                </CardFooter>
-              </Card>
+              {activeRoleCard.map((roleCard) => (
+                <Card key={roleCard.role} className="cursor-pointer">
+                  <CardContent className="relative h-32">
+                    <Image
+                      src={roleCard.image}
+                      alt={roleCard.label}
+                      className="object-contain"
+                      fill
+                    />
+                  </CardContent>
+                  <CardFooter className="justify-center">
+                    <Button
+                      onClick={() => onRoleSelected(roleCard.role)}
+                      variant={
+                        isIncludes(roleCard.role) ? "default" : "secondary"
+                      }
+                      className="w-full"
+                    >
+                      {isIncludes(roleCard.role) ? "Select" : "Register"} as{" "}
+                      {roleCard.label}
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
             </div>
           </CardContent>
-          <CardFooter className="">
-            <Button className="w-full">Select Role</Button>
-          </CardFooter>
         </Card>
       </div>
     </div>

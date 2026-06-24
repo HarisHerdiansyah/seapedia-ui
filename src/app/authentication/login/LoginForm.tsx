@@ -16,10 +16,12 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { loginFn } from "@/http/authentication";
+import { useRouter } from "next/navigation";
 
 type LoginState = LoginPayload;
 
 export default function LoginForm() {
+  const router = useRouter();
   const [loginData, setLoginData] = useImmer<LoginState>({
     email: "",
     password: "",
@@ -35,6 +37,7 @@ export default function LoginForm() {
       toast.success(data.message, { position: "top-right" });
       window.localStorage.setItem("accessToken", payload.accessToken);
       window.localStorage.setItem("userData", JSON.stringify(payload.userData));
+      router.push("/authentication/active-role");
     },
     onError: (err) => {
       if (err.response) {

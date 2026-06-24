@@ -14,3 +14,7 @@ export type RegisterPayload = {
 };
 
 export type LoginPayload = Pick<RegisterPayload, "email" | "password">;
+
+export type SelectRolePayload = {
+  activeRole: string;
+};
