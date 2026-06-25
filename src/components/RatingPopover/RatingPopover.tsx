@@ -88,7 +88,7 @@ export default function RatingPopover() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div className="fixed right-10 bottom-10 bg-primary hover:bg-chart-5 transition-all duration-300 cursor-pointer w-16 h-16 flex items-center justify-center rounded-full shadow-lg">
+        <div className="fixed right-10 bottom-10 bg-primary hover:bg-chart-5 transition-all duration-300 cursor-pointer w-16 h-16 flex items-center justify-center rounded-full shadow-lg border-2 border-white">
           <MessageCircleMore className="text-white w-7 h-7" />
         </div>
       </PopoverTrigger>

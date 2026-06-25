@@ -1,6 +1,14 @@
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, MapPin } from "lucide-react";
+import ProductCard from "@/components/ProductCard/ProductCard";
+import TestimonialCard from "@/components/TestimonialCard/TestimonialCard";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel";
 
 const simpleCategories = [
   "Electronics & Gadgets",
@@ -160,40 +168,41 @@ export default function HomePage() {
         <h1 className="text-2xl font-bold text-primary">Our Recomendations</h1>
         <div className="grid grid-cols-5 gap-4 mt-2">
           {mockProducts.map((product) => (
-            <div
-              key={product.id}
-              className="rounded-2xl overflow-hidden shadow-sm border border-border/50"
-            >
-              <div className="relative h-44">
-                <Image
-                  src="https://placehold.co/250/ecfdf5/007a55.avif"
-                  alt="Product"
-                  className="object-cover"
-                  fill
-                />
-              </div>
-              <div className="p-4">
-                <p className="text-sm text-right font-semibold mb-2">
-                  <Star
-                    className="inline-block text-amber-300"
-                    fill="#ffd230"
-                  />{" "}
-                  {product.rating}/5.0
-                </p>
-                <p className="text-sm line-clamp-2 mb-2">
-                  {product.productName}
-                </p>
-                <p className="text-base font-semibold text-primary mb-2">
-                  {product.price}
-                </p>
-                <p className="text-sm text-gray-500">
-                  <MapPin className="inline-block text-gray-500" size={14} />{" "}
-                  {product.location}
-                </p>
-              </div>
-            </div>
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
+      </div>
+
+      <div className="my-16">
+        <h1 className="text-2xl font-bold text-primary">
+          What they said about SEAPEDIA
+        </h1>
+        <Carousel
+          className="mt-2"
+          opts={{
+            loop: true,
+          }}
+        >
+          <CarouselContent>
+            <CarouselItem className="basis-1/3">
+              <TestimonialCard />
+            </CarouselItem>
+            <CarouselItem className="basis-1/3">
+              <TestimonialCard />
+            </CarouselItem>
+            <CarouselItem className="basis-1/3">
+              <TestimonialCard />
+            </CarouselItem>
+            <CarouselItem className="basis-1/3">
+              <TestimonialCard />
+            </CarouselItem>
+            <CarouselItem className="basis-1/3">
+              <TestimonialCard />
+            </CarouselItem>
+          </CarouselContent>
+          <CarouselPrevious />
+          <CarouselNext />
+        </Carousel>
       </div>
     </>
   );
