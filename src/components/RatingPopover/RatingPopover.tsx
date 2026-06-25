@@ -1,6 +1,6 @@
-"use client"; // Tambahkan ini jika kamu menggunakan Next.js App Router
+"use client";
 
-import { useState } from "react";
+import { ChangeEvent } from "react";
 import { MessageCircleMore, Star } from "lucide-react";
 import {
   Popover,
@@ -9,14 +9,80 @@ import {
   PopoverHeader,
   PopoverTitle,
 } from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { useMutation } from "@tanstack/react-query";
+import { useImmer } from "use-immer";
+import { submitAppReviewFn } from "@/http/app-review";
+import { AppReviewPayload, ApiResponse } from "@/http/types";
+import { AxiosError } from "axios";
+import { toast } from "sonner";
+
+type RatingState = {
+  rating: number;
+  hoverRating: number;
+  reviewer: string;
+  content: string;
+};
 
 export default function RatingPopover() {
-  const [rating, setRating] = useState(0);
-  const [hoverRating, setHoverRating] = useState(0);
-  const [comment, setComment] = useState("");
+  const [ratingState, setRatingState] = useImmer<RatingState>({
+    rating: 0,
+    hoverRating: 0,
+    reviewer: "",
+    content: "",
+  });
+  const { mutate, isPending } = useMutation<
+    any,
+    AxiosError<ApiResponse>,
+    AppReviewPayload
+  >({
+    mutationFn: submitAppReviewFn,
+    onSuccess: (data) => {
+      const payload = data.data;
+      toast.success(payload.message, { position: "top-right" });
+    },
+    onError: (err) => {
+      if (err.response) {
+        const data = err.response.data;
+        toast.error(data.message, { position: "top-right" });
+      }
+    },
+  });
+
+  const onRatingChange = (star: number) => {
+    setRatingState((draft) => {
+      draft.rating = star;
+    });
+  };
+
+  const onHoverRatingChange = (star: number) => {
+    setRatingState((draft) => {
+      draft.hoverRating = star;
+    });
+  };
+
+  const onInputChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    setRatingState((draft) => {
+      const name = e.target.name as keyof RatingState;
+      if (name == "content" || name == "reviewer") {
+        draft[name] = e.target.value;
+      }
+    });
+  };
 
   const handleSubmit = () => {
-    console.log("Submitted:", { rating, comment });
+    const payload: AppReviewPayload = {
+      reviewer: ratingState.reviewer,
+      rating: ratingState.rating,
+      content: ratingState.content,
+    };
+    mutate(payload);
   };
 
   return (
@@ -42,14 +108,14 @@ export default function RatingPopover() {
                 <button
                   key={star}
                   type="button"
-                  onClick={() => setRating(star)}
-                  onMouseEnter={() => setHoverRating(star)}
-                  onMouseLeave={() => setHoverRating(0)}
+                  onClick={() => onRatingChange(star)}
+                  onMouseEnter={() => onHoverRatingChange(star)}
+                  onMouseLeave={() => onHoverRatingChange(0)}
                   className="focus:outline-none transition-transform hover:scale-110"
                 >
                   <Star
                     className={`w-7 h-7 transition-colors ${
-                      star <= (hoverRating || rating)
+                      star <= (ratingState.hoverRating || ratingState.rating)
                         ? "fill-yellow-400 text-yellow-400"
                         : "text-gray-300"
                     }`}
@@ -59,30 +125,51 @@ export default function RatingPopover() {
             </div>
           </div>
 
+          <Separator />
+
           <div className="flex flex-col gap-2">
-            <label
-              htmlFor="comment"
+            <Label
+              htmlFor="reviewer"
               className="text-sm font-medium text-gray-700"
             >
-              Comment:
-            </label>
-            <textarea
-              id="comment"
+              Reviewer Name (Optional):
+            </Label>
+            <Input
+              id="reviewer"
+              name="reviewer"
+              type="text"
+              value={ratingState.reviewer}
+              onChange={onInputChange}
+            />
+          </div>
+
+          <Separator />
+
+          <div className="flex flex-col gap-2">
+            <Label
+              htmlFor="content"
+              className="text-sm font-medium text-gray-700"
+            >
+              Content:
+            </Label>
+            <Textarea
+              id="content"
+              name="content"
               rows={3}
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
+              value={ratingState.content}
+              onChange={onInputChange}
               placeholder="You may share your experience with us"
               className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
             />
           </div>
 
-          <button
+          <Button
             onClick={handleSubmit}
-            disabled={rating === 0}
-            className="w-full py-2.5 mt-2 text-sm font-semibold text-white bg-primary rounded-md hover:bg-primary/90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            disabled={ratingState.rating === 0 || isPending}
+            // className="w-full py-2.5 mt-2 text-sm font-semibold text-white bg-primary rounded-md hover:bg-primary/90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
           >
-            Send Review
-          </button>
+            {isPending ? "Submitting..." : "Send Review"}
+          </Button>
         </div>
       </PopoverContent>
     </Popover>
