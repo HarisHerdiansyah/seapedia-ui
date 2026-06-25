@@ -10,8 +10,9 @@ export default function NavigationCard() {
   const { mutate: onLogout } = useMutation({
     mutationFn: logoutFn,
     onSuccess: () => {
+      window.localStorage.removeItem("accessToken");
       window.localStorage.removeItem("userData");
-      window.location.href = "/authentication/login";
+      window.location.href = "/home";
     },
   });
 

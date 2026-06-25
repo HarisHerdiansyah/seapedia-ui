@@ -49,8 +49,9 @@ export default function ActiveRolePage() {
     onSuccess: (data) => {
       const payload = data.data;
       const updated = { ...userData, role: payload.activeRole };
+      window.localStorage.setItem("accessToken", payload.accessToken);
       window.localStorage.setItem("userData", JSON.stringify(updated));
-      router.push("/profile");
+      router.push("/profile/dashboard");
     },
     onError: (err) => {
       if (err.response) {

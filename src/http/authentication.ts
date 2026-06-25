@@ -4,7 +4,7 @@ import { LoginPayload, RegisterPayload, SelectRolePayload } from "./types";
 const endpoint = {
   register: "/authentication/register",
   login: "/authentication/login",
-  selectRole: "/authentication/non-admin-role",
+  selectRole: "/authentication/select-active-role",
   logout: "/authentication/logout",
 };
 
