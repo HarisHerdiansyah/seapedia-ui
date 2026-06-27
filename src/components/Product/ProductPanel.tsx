@@ -1,14 +1,18 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { Fragment } from "react/jsx-runtime";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getProductsFn } from "@/http/products";
 import { ProductData } from "@/http/types";
-import ProductCard from "@/components/ProductCard/ProductCard";
 import { Button } from "@/components/ui/button";
+import ProductCard from "./ProductCard";
+import ProductPanelSkeleton from "./ProductPanelSkeleton";
 
-export default function ProductPanel() {
+type ProductPanelProps = {
+  gridSize: number;
+};
+
+export default function ProductPanel({ gridSize }: ProductPanelProps) {
   const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useInfiniteQuery({
       queryKey: ["products", "homepage"],
@@ -23,13 +27,12 @@ export default function ProductPanel() {
     });
 
   if (isLoading) {
-    return <p>Loading . . .</p>;
+    return <ProductPanelSkeleton gridSize={gridSize} />;
   }
 
   return (
-    <div className="my-16">
-      <h1 className="text-2xl font-bold text-primary">Our Recomendations</h1>
-      <div className="grid grid-cols-5 gap-4 mt-2">
+    <>
+      <div className={`grid grid-cols-${gridSize} gap-4 mt-2`}>
         {data?.pages.map((page, index) => (
           <Fragment key={index}>
             {page.data.productData.map((product: ProductData) => (
@@ -47,6 +50,6 @@ export default function ProductPanel() {
           {isFetchingNextPage ? "Loading..." : "Load More"}
         </Button>
       </div>
-    </div>
+    </>
   );
 }

@@ -8,7 +8,7 @@ import {
   CarouselPrevious,
   CarouselNext,
 } from "@/components/ui/carousel";
-import ProductPanel from "./ProductPanel";
+import ProductPanel from "@/components/Product/ProductPanel";
 import { serverApiClient } from "@/http/interceptor";
 import { AppReviewData, CategoryData } from "@/http/types";
 
@@ -46,7 +46,10 @@ export default async function HomePage() {
         </div>
       </div>
 
-      <ProductPanel />
+      <div className="my-16">
+        <h1 className="text-2xl font-bold text-primary">Our Recommendations</h1>
+        <ProductPanel gridSize={5} />
+      </div>
 
       <div className="my-16">
         <h1 className="text-2xl font-bold text-primary">
