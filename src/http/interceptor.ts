@@ -9,6 +9,15 @@ export const apiClient = axios.create({
   },
 });
 
+export const serverApiClient = axios.create({
+  baseURL: "http://localhost:8080/api",
+  timeout: 5000,
+  headers: {
+    "Access-Control-Allow-Origin": true,
+    "Content-Type": "application/json",
+  },
+});
+
 type FailedQueue = {
   resolve: (value: string | null) => void;
   reject: (err?: any) => void;
