@@ -17,12 +17,14 @@ import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { loginFn } from "@/http/authentication";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 
 type LoginState = LoginPayload;
 
 export default function LoginForm() {
   const router = useRouter();
-  const [loginData, setLoginData] = useImmer<LoginState>({
+  const { setLoginData } = useAuth();
+  const [loginData, setLocalLoginData] = useImmer<LoginState>({
     email: "",
     password: "",
   });
@@ -35,8 +37,7 @@ export default function LoginForm() {
     onSuccess: (data) => {
       const payload = data.data;
       toast.success(data.message, { position: "top-right" });
-      window.localStorage.setItem("accessToken", payload.accessToken);
-      window.localStorage.setItem("userData", JSON.stringify(payload.userData));
+      setLoginData(payload.userData, payload.accessToken);
       router.push("/authentication/active-role");
     },
     onError: (err) => {
@@ -48,7 +49,7 @@ export default function LoginForm() {
   });
 
   const onInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setLoginData((draft) => {
+    setLocalLoginData((draft) => {
       const name = e.target.name as keyof LoginState;
       draft[name] = e.target.value;
     });

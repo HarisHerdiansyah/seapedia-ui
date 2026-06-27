@@ -16,6 +16,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import { useAuth } from "@/hooks/useAuth";
+
 const activeRoleCard = [
   {
     role: "BUYER",
@@ -35,8 +37,9 @@ const activeRoleCard = [
 ];
 
 export default function ActiveRolePage() {
-  const userData = JSON.parse(window.localStorage.getItem("userData") || "{}");
-  const isIncludes = (role: string) => userData.allowedAs.includes(role);
+  const { user, setActiveRole, isHydrated } = useAuth();
+  
+  const isIncludes = (role: string) => user?.allowedAs?.includes(role) ?? false;
 
   const router = useRouter();
 
@@ -48,9 +51,8 @@ export default function ActiveRolePage() {
     mutationFn: selectRoleFn,
     onSuccess: (data) => {
       const payload = data.data;
-      const updated = { ...userData, role: payload.activeRole };
-      window.localStorage.setItem("accessToken", payload.accessToken);
-      window.localStorage.setItem("userData", JSON.stringify(updated));
+      const updatedUser = { ...user, role: payload.activeRole };
+      setActiveRole(payload.activeRole, payload.accessToken, updatedUser);
       router.push("/profile/dashboard");
     },
     onError: (err) => {

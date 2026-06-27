@@ -40,7 +40,8 @@ const processQueue = (error: unknown, newToken: string | null = null) => {
 apiClient.defaults.withCredentials = true;
 
 apiClient.interceptors.request.use((config) => {
-  const accessToken = window.localStorage.getItem("accessToken");
+  const authStorage = window.localStorage.getItem("auth-storage");
+  const accessToken = JSON.parse(authStorage ?? "null")?.state.accessToken;
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }

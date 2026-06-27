@@ -1,9 +1,15 @@
+"use client";
+
 import Link from "next/link";
 import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ShoppingCart, UserRound } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Navbar() {
+  const { isLoggedIn } = useAuth();
+
   return (
     <nav className="w-full bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -31,20 +37,43 @@ export default function Navbar() {
           </form>
 
           <div className="flex items-center gap-4">
-            <Link href="/authentication/register">
-              <Button
-                variant="outline"
-                size="lg"
-                className="border border-primary bg-primary-foreground cursor-pointer"
-              >
-                Sign Up
-              </Button>
-            </Link>
-            <Link href="/authentication/login">
-              <Button size="lg" className="cursor-pointer">
-                Log In
-              </Button>
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <Link href="/carts">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="border border-primary bg-primary-foreground cursor-pointer"
+                  >
+                    <ShoppingCart />
+                    Cart
+                  </Button>
+                </Link>
+                <Link href="/profile/dashboard">
+                  <Button size="lg" className="cursor-pointer">
+                    <UserRound />
+                    Profile
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/authentication/register">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="border border-primary bg-primary-foreground cursor-pointer"
+                  >
+                    Sign Up
+                  </Button>
+                </Link>
+                <Link href="/authentication/login">
+                  <Button size="lg" className="cursor-pointer">
+                    Log In
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
