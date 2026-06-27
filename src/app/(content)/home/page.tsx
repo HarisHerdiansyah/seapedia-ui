@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import TestimonialCard from "@/components/TestimonialCard/TestimonialCard";
 import {
@@ -8,9 +9,9 @@ import {
   CarouselPrevious,
   CarouselNext,
 } from "@/components/ui/carousel";
-import ProductPanel from "@/components/Product/ProductPanel";
 import { serverApiClient } from "@/http/interceptor";
 import { AppReviewData, CategoryData } from "@/http/types";
+import HomeProductPanel from "./HomeProductPanel";
 
 export default async function HomePage() {
   const categoriesResponse = await serverApiClient.get("/categories");
@@ -34,21 +35,23 @@ export default async function HomePage() {
         <h1 className="text-2xl font-bold text-primary">Explore Categories</h1>
         <div className="grid grid-cols-5 gap-4 mt-2">
           {categories.map((cat: CategoryData) => (
-            <Card
+            <Link
               key={cat.id}
-              className="h-full cursor-pointer transition-all duration-300 hover:scale-105 hover:border hover:border-primary hover:bg-primary-foreground"
+              href={`/product/query?category=${cat.id}&order=NEWEST`}
             >
-              <CardContent className="flex h-full items-center justify-center text-center text-base">
-                {cat.name}
-              </CardContent>
-            </Card>
+              <Card className="h-full cursor-pointer transition-all duration-300 hover:scale-105 hover:border hover:border-primary hover:bg-primary-foreground">
+                <CardContent className="flex h-full items-center justify-center text-center text-base">
+                  {cat.name}
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       </div>
 
       <div className="my-16">
         <h1 className="text-2xl font-bold text-primary">Our Recommendations</h1>
-        <ProductPanel gridSize={5} />
+        <HomeProductPanel />
       </div>
 
       <div className="my-16">
