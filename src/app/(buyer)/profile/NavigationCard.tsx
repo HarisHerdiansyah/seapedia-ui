@@ -5,13 +5,15 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { logoutFn } from "@/http/authentication";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function NavigationCard() {
+  const { logout } = useAuth();
+
   const { mutate: onLogout } = useMutation({
     mutationFn: logoutFn,
     onSuccess: () => {
-      window.localStorage.removeItem("accessToken");
-      window.localStorage.removeItem("userData");
+      logout();
       window.location.href = "/home";
     },
   });

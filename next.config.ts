@@ -5,7 +5,16 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       new URL("https://placehold.co/**"),
       new URL("https://picsum.photos/**"),
+      new URL("https://wilayah.id/**"),
     ],
+  },
+  rewrites: async () => {
+    return [
+      {
+        source: "/api/wilayah/:path*",
+        destination: "https://wilayah.id/api/:path*",
+      },
+    ];
   },
 };
 

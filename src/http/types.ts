@@ -56,3 +56,34 @@ export type ProductData = {
   location: string;
   updatedAt: string;
 };
+
+export type ProductPayload = {
+  categoryId: string;
+  name: string;
+  price: number;
+  stock: number;
+  description: string;
+};
+
+export type ProductDetailData = {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  stock: number;
+  description: string;
+  imageUrl: string;
+  location: string;
+  storeName: string;
+};
+
+export type StoreRegisterPayload = {
+  userId: string;
+  storeName: string;
+  location: string;
+};
+
+export type LocationData = {
+  code: string;
+  name: string;
+};

@@ -38,7 +38,7 @@ const activeRoleCard = [
 
 export default function ActiveRolePage() {
   const { user, setActiveRole, isHydrated } = useAuth();
-  
+
   const isIncludes = (role: string) => user?.allowedAs?.includes(role) ?? false;
 
   const router = useRouter();
@@ -70,6 +70,11 @@ export default function ActiveRolePage() {
     mutate({ activeRole: role });
   };
 
+  const onRegisterRole = (role: string) => {
+    router.push("/store/register");
+    // driver implemented soon
+  };
+
   return (
     <div className="w-full h-screen flex items-center justify-center">
       <div className="max-w-3xl w-full shrink-0">
@@ -92,16 +97,23 @@ export default function ActiveRolePage() {
                     />
                   </CardContent>
                   <CardFooter className="justify-center">
-                    <Button
-                      onClick={() => onRoleSelected(roleCard.role)}
-                      variant={
-                        isIncludes(roleCard.role) ? "default" : "secondary"
-                      }
-                      className="w-full"
-                    >
-                      {isIncludes(roleCard.role) ? "Select" : "Register"} as{" "}
-                      {roleCard.label}
-                    </Button>
+                    {isIncludes(roleCard.role) ? (
+                      <Button
+                        onClick={() => onRoleSelected(roleCard.role)}
+                        variant="default"
+                        className="w-full"
+                      >
+                        Select as {roleCard.label}
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => onRegisterRole(roleCard.role)}
+                        variant="secondary"
+                        className="w-full"
+                      >
+                        Register as {roleCard.label}
+                      </Button>
+                    )}
                   </CardFooter>
                 </Card>
               ))}

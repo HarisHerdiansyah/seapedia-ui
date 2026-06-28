@@ -5,11 +5,13 @@ export const PUBLIC_ROUTES = [
   "/home",
   "/product",
   "/review",
+  "/store",
 ];
 
 export const PRIVATE_ROUTES = [
   "/profile/dashboard",
   "/authentication/active-role",
+  // "/store/register",
 ];
 
 export const AUTH_ROUTES = [

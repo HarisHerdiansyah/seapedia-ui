@@ -31,12 +31,12 @@ export const useUserStore = create<UserState>()(
       logout: () => set({ user: null, accessToken: null, activeRole: null }),
     }),
     {
-      name: "auth-storage", // name of the item in the storage (must be unique)
+      name: "auth-storage",
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,
         activeRole: state.activeRole,
-      }), // Pick what to persist
+      }),
     },
   ),
 );
