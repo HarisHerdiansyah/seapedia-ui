@@ -26,6 +26,7 @@ import { ApiResponse, LocationData, StoreRegisterPayload } from "@/http/types";
 import { useAuth } from "@/hooks/useAuth";
 import { registerStoreFn } from "@/http/store";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type StoreRegisterState = {
   storeName: string;
@@ -58,14 +59,21 @@ export default function StoreRegisterForm() {
     enabled: !!formData.provinceCode,
   });
 
-  const { mutate } = useMutation<
+  const { mutate, isPending } = useMutation<
     any,
     AxiosError<ApiResponse>,
     StoreRegisterPayload
   >({
     mutationFn: registerStoreFn,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      toast.success(data.message, { position: "top-right" });
       router.push("/store/dashboard");
+    },
+    onError: (err) => {
+      if (err.response) {
+        const data = err.response.data;
+        toast.error(data.message, { position: "top-right" });
+      }
     },
   });
 
@@ -168,7 +176,9 @@ export default function StoreRegisterForm() {
           </Field>
         </FieldGroup>
         <Field>
-          <Button type="submit">Register</Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? "Submitting..." : "Register"}
+          </Button>
         </Field>
       </FieldSet>
     </form>

@@ -11,7 +11,6 @@ export const PUBLIC_ROUTES = [
 export const PRIVATE_ROUTES = [
   "/profile/dashboard",
   "/authentication/active-role",
-  // "/store/register",
 ];
 
 export const AUTH_ROUTES = [
