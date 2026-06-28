@@ -53,7 +53,11 @@ export default function ActiveRolePage() {
       const payload = data.data;
       const updatedUser = { ...user, role: payload.activeRole };
       setActiveRole(payload.activeRole, payload.accessToken, updatedUser);
-      router.push("/profile/dashboard");
+
+      let redirectPath = "";
+      if (payload.activeRole === "BUYER") redirectPath = "/profile/dashboard";
+      if (payload.activeRole === "SELLER") redirectPath = "/store/dashboard";
+      router.push(redirectPath);
     },
     onError: (err) => {
       if (err.response) {

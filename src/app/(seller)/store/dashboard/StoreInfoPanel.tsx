@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getMyStore } from "@/http/store";
 
 export default function StoreInfoPanel() {
-  const { data, isLoading } = useQuery({
+  const { data } = useQuery({
     queryKey: ["my-store"],
     queryFn: getMyStore,
     select: (data) => data.data,

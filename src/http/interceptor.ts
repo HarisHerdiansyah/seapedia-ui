@@ -1,3 +1,4 @@
+import { useUserStore } from "@/store/userStore";
 import axios from "axios";
 
 export const apiClient = axios.create({
@@ -78,16 +79,15 @@ apiClient.interceptors.response.use(
         );
         const data = response.data.data;
         const newAccessToken = data.accessToken;
+        useUserStore.setState({ accessToken: newAccessToken });
 
-        window.localStorage.setItem("accessToken", newAccessToken);
         processQueue(null, newAccessToken);
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
         return apiClient(originalRequest);
       } catch (err) {
         processQueue(err, null);
-        window.localStorage.removeItem("accessToken");
-        // window.location.href = "/authentication/login";
+        window.localStorage.removeItem("auth-storage");
 
         return Promise.reject(err);
       } finally {

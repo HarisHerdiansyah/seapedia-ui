@@ -15,6 +15,7 @@ interface UserState {
   activeRole: string | null;
   setLoginData: (user: UserData, accessToken: string) => void;
   setActiveRole: (role: string, accessToken: string, user: UserData) => void;
+  setAccessToken: (accessToken: string) => void;
   logout: () => void;
 }
 
@@ -28,6 +29,7 @@ export const useUserStore = create<UserState>()(
         set({ user, accessToken, activeRole: null }),
       setActiveRole: (activeRole, accessToken, user) =>
         set({ activeRole, accessToken, user }),
+      setAccessToken: (accessToken) => set({ accessToken }),
       logout: () => set({ user: null, accessToken: null, activeRole: null }),
     }),
     {

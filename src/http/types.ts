@@ -49,9 +49,11 @@ export type ProductParams = {
 };
 
 export type ProductData = {
-  id: string | number;
+  id: string;
   name: string;
+  category: string;
   price: number;
+  rating: number;
   imageUrl: string;
   location: string;
   updatedAt: string;
@@ -72,6 +74,7 @@ export type ProductDetailData = {
   price: number;
   stock: number;
   description: string;
+  rating: number;
   imageUrl: string;
   location: string;
   storeName: string;
@@ -86,4 +89,23 @@ export type StoreRegisterPayload = {
 export type LocationData = {
   code: string;
   name: string;
+};
+
+export type StoreProductData = {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  stock: number;
+  updatedAt: string;
+};
+
+export type StoreProductDetailData = {
+  id: string;
+  name: string;
+  categoryId: string;
+  price: number;
+  stock: number;
+  description: string;
+  imageUrl: string;
 };

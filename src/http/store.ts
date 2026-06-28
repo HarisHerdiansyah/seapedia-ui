@@ -1,5 +1,5 @@
 import { apiClient } from "./interceptor";
-import { StoreRegisterPayload } from "./types";
+import { StoreRegisterPayload, ProductParams } from "./types";
 
 export async function registerStoreFn(payload: StoreRegisterPayload) {
   const response = await apiClient.post("/stores", payload);
@@ -8,5 +8,10 @@ export async function registerStoreFn(payload: StoreRegisterPayload) {
 
 export async function getMyStore() {
   const response = await apiClient.get("/stores/me");
+  return response.data;
+}
+
+export async function getStoreProductsFn(params: ProductParams) {
+  const response = await apiClient.get("/stores/products", { params });
   return response.data;
 }

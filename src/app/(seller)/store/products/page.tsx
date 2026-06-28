@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Table, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import FilterForm from "./FilterForm";
-import ProductTableBody from "./ProductTableBody";
+import ProductTable from "./ProductTable";
 
 export default function ProductPage() {
   return (
@@ -13,7 +12,7 @@ export default function ProductPage() {
       <div className="mt-8">
         <Link
           href={{
-            pathname: "/seller/store/products",
+            pathname: "/store/products/form",
             query: { type: "ADD" },
           }}
         >
@@ -27,19 +26,7 @@ export default function ProductPage() {
           </Button>
         </Link>
       </div>
-      <Table className="mt-2">
-        <TableHeader>
-          <TableRow>
-            <TableHead className="text-center">Name</TableHead>
-            <TableHead className="text-center">Category</TableHead>
-            <TableHead className="text-center">Price</TableHead>
-            <TableHead className="text-center">Stock</TableHead>
-            <TableHead className="text-center">Last Updated</TableHead>
-            <TableHead className="text-center">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <ProductTableBody />
-      </Table>
+      <ProductTable />
     </>
   );
 }

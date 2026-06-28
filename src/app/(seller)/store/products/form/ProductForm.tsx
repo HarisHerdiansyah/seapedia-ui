@@ -11,7 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getCategoriesFn } from "@/http/categories";
-import { createProductFn } from "@/http/products";
+import {
+  createProductFn,
+  getProductDetailFn,
+  updateProductFn,
+} from "@/http/products";
 import {
   Select,
   SelectContent,
@@ -19,11 +23,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CategoryData } from "@/http/types";
+import { ApiResponse, CategoryData, ProductPayload } from "@/http/types";
 import { useImmer } from "use-immer";
 import { ChangeEvent, FormEvent } from "react";
 import { toast } from "sonner";
-import { useSearchParams } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
+import { AxiosError } from "axios";
 
 type ProductFormType = "ADD" | "EDIT";
 
@@ -33,22 +38,14 @@ type ProductFormState = {
   price: string;
   stock: string;
   description: string;
-  image: string;
+  imageUrl: string;
 };
 
 export default function ProductForm() {
   const searchParams = useSearchParams();
   const type = searchParams.get("type") as ProductFormType;
-  const productId = type === "EDIT" && searchParams.get("id");
-
-  const [productForm, setProductForm] = useImmer<ProductFormState>({
-    name: "",
-    category: "",
-    price: "",
-    stock: "",
-    description: "",
-    image: "",
-  });
+  const isEdit = type === "EDIT";
+  const productId = searchParams.get("id");
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
@@ -56,14 +53,65 @@ export default function ProductForm() {
     select: (data) => data.data,
   });
 
-  const { mutate: createProductMutate } = useMutation({
+  const { data: productDetail } = useQuery({
+    queryKey: ["product-detail"],
+    queryFn: () => getProductDetailFn(productId as string),
+    enabled: isEdit,
+    select: (data) => data.data,
+  });
+
+  const { mutate: createProductMutate, isPending: isAddPending } = useMutation<
+    any,
+    AxiosError<ApiResponse>,
+    ProductPayload
+  >({
     mutationFn: createProductFn,
     onSuccess: () => {
-      toast.success("Product created successfully");
+      toast.success("Product created successfully", { position: "top-right" });
+      redirect("/store/products");
     },
-    onError: () => {
-      toast.error("Failed to create product");
+    onError: (err) => {
+      if (err.response) {
+        const data = err.response.data;
+        toast.error(data.message, { position: "top-right" });
+      }
     },
+  });
+
+  const { mutate: updateProductMutate, isPending: isUpdatePending } =
+    useMutation<
+      any,
+      AxiosError<ApiResponse>,
+      { productId: string; payload: ProductPayload }
+    >({
+      mutationFn: ({
+        productId,
+        payload,
+      }: {
+        productId: string;
+        payload: ProductPayload;
+      }) => updateProductFn(productId, payload),
+      onSuccess: () => {
+        toast.success("Product updated successfully", {
+          position: "top-right",
+        });
+        redirect("/store/products");
+      },
+      onError: (err) => {
+        if (err.response) {
+          const data = err.response.data;
+          toast.error(data.message, { position: "top-right" });
+        }
+      },
+    });
+
+  const [productForm, setProductForm] = useImmer<ProductFormState>({
+    name: isEdit ? productDetail.name : "",
+    category: "",
+    price: isEdit ? productDetail.price : "",
+    stock: isEdit ? productDetail.stock : "",
+    description: isEdit ? productDetail.description : " ",
+    imageUrl: "",
   });
 
   const onInputChange = (
@@ -83,6 +131,19 @@ export default function ProductForm() {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const payload: ProductPayload = {
+      categoryId: productForm.category,
+      name: productForm.name,
+      price: Number(productForm.price),
+      stock: Number(productForm.stock),
+      description: productForm.description,
+    };
+
+    if (isEdit && productId) {
+      updateProductMutate({ productId: productId, payload });
+      return;
+    }
+    createProductMutate(payload);
   };
 
   return (
@@ -175,14 +236,22 @@ export default function ProductForm() {
               name="imageUrl"
               type="url"
               placeholder="Enter product image URL"
-              value={productForm.image}
+              value={productForm.imageUrl}
               onChange={onInputChange}
             />
           </Field>
         </div>
 
         <Field>
-          <Button type="button">Save Product</Button>
+          {isEdit ? (
+            <Button type="submit" disabled={isUpdatePending}>
+              {isUpdatePending ? "Updating ...." : "Update Product"}
+            </Button>
+          ) : (
+            <Button type="submit" disabled={isAddPending}>
+              {isAddPending ? "Creating ...." : "Create Product"}
+            </Button>
+          )}
         </Field>
       </FieldSet>
     </form>
