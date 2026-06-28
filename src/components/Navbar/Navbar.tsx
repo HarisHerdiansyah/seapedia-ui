@@ -1,26 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { Field } from "@/components/ui/field";
+// import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input";
 import { ShoppingCart, UserRound } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
-function UnauthenticatedAside() {
+function AuthenticatedAside({ role }: { role: string }) {
   return (
     <>
-      <Link href="/carts">
-        <Button
-          variant="outline"
-          size="lg"
-          className="border border-primary bg-primary-foreground cursor-pointer"
-        >
-          <ShoppingCart />
-          Cart
-        </Button>
-      </Link>
-      <Link href="/profile/dashboard">
+      {role === "BUYER" && (
+        <Link href="/carts">
+          <Button
+            variant="outline"
+            size="lg"
+            className="border border-primary bg-primary-foreground cursor-pointer"
+          >
+            <ShoppingCart />
+            Cart
+          </Button>
+        </Link>
+      )}
+      <Link href="/profile">
         <Button size="lg" className="cursor-pointer">
           <UserRound />
           Profile
@@ -30,7 +32,7 @@ function UnauthenticatedAside() {
   );
 }
 
-function BuyerAside() {
+function UnauthenticatedAside() {
   return (
     <>
       <Link href="/authentication/register">
@@ -51,11 +53,6 @@ function BuyerAside() {
   );
 }
 
-const AsideMap: Record<string, React.ReactNode> = {
-  BUYER: <BuyerAside />,
-  SELLER: <UnauthenticatedAside />,
-};
-
 export default function Navbar() {
   const { isLoggedIn, activeRole } = useAuth();
 
@@ -72,7 +69,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {activeRole === "BUYER" && (
+          {/*{activeRole === "BUYER" && (
             <form className="flex flex-1 max-w-md items-center gap-2 lg:gap-4">
               <Field>
                 <Input
@@ -85,13 +82,13 @@ export default function Navbar() {
               </Field>
               <Button type="submit">Search</Button>
             </form>
-          )}
+          )}*/}
 
           <div className="flex items-center gap-4">
             {isLoggedIn ? (
-              <UnauthenticatedAside />
+              <AuthenticatedAside role={activeRole as string} />
             ) : (
-              AsideMap[activeRole as string]
+              <UnauthenticatedAside />
             )}
           </div>
         </div>

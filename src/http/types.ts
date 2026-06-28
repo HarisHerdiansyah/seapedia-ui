@@ -65,6 +65,7 @@ export type ProductPayload = {
   price: number;
   stock: number;
   description: string;
+  imageUrl: string;
 };
 
 export type ProductDetailData = {

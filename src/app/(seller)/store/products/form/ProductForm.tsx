@@ -11,11 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getCategoriesFn } from "@/http/categories";
-import {
-  createProductFn,
-  getProductDetailFn,
-  updateProductFn,
-} from "@/http/products";
+import { createProductFn, updateProductFn } from "@/http/products";
+import { getStoreProductDetailFn } from "@/http/store";
 import {
   Select,
   SelectContent,
@@ -25,9 +22,9 @@ import {
 } from "@/components/ui/select";
 import { ApiResponse, CategoryData, ProductPayload } from "@/http/types";
 import { useImmer } from "use-immer";
-import { ChangeEvent, FormEvent } from "react";
+import { ChangeEvent, FormEvent, useEffect } from "react";
 import { toast } from "sonner";
-import { redirect, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AxiosError } from "axios";
 
 type ProductFormType = "ADD" | "EDIT";
@@ -42,6 +39,7 @@ type ProductFormState = {
 };
 
 export default function ProductForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const type = searchParams.get("type") as ProductFormType;
   const isEdit = type === "EDIT";
@@ -55,7 +53,7 @@ export default function ProductForm() {
 
   const { data: productDetail } = useQuery({
     queryKey: ["product-detail"],
-    queryFn: () => getProductDetailFn(productId as string),
+    queryFn: () => getStoreProductDetailFn(productId as string),
     enabled: isEdit,
     select: (data) => data.data,
   });
@@ -68,7 +66,7 @@ export default function ProductForm() {
     mutationFn: createProductFn,
     onSuccess: () => {
       toast.success("Product created successfully", { position: "top-right" });
-      redirect("/store/products");
+      router.replace("/store/products");
     },
     onError: (err) => {
       if (err.response) {
@@ -95,7 +93,7 @@ export default function ProductForm() {
         toast.success("Product updated successfully", {
           position: "top-right",
         });
-        redirect("/store/products");
+        router.replace("/store/products");
       },
       onError: (err) => {
         if (err.response) {
@@ -106,11 +104,11 @@ export default function ProductForm() {
     });
 
   const [productForm, setProductForm] = useImmer<ProductFormState>({
-    name: isEdit ? productDetail.name : "",
+    name: "",
     category: "",
-    price: isEdit ? productDetail.price : "",
-    stock: isEdit ? productDetail.stock : "",
-    description: isEdit ? productDetail.description : " ",
+    price: "",
+    stock: "",
+    description: "",
     imageUrl: "",
   });
 
@@ -137,6 +135,7 @@ export default function ProductForm() {
       price: Number(productForm.price),
       stock: Number(productForm.stock),
       description: productForm.description,
+      imageUrl: productForm.imageUrl,
     };
 
     if (isEdit && productId) {
@@ -145,6 +144,22 @@ export default function ProductForm() {
     }
     createProductMutate(payload);
   };
+
+  useEffect(() => {
+    if (productDetail && isEdit) {
+      setProductForm((draft) => {
+        draft.name = productDetail.name || "";
+        draft.category = productDetail.categoryId || "";
+        draft.price = productDetail.price ? String(productDetail.price) : "";
+        draft.stock =
+          productDetail.stock !== undefined && productDetail.stock !== null
+            ? String(productDetail.stock)
+            : "";
+        draft.description = productDetail.description || "";
+        draft.imageUrl = productDetail.imageUrl || "";
+      });
+    }
+  }, [productDetail, isEdit, setProductForm]);
 
   return (
     <form className="mt-8" onSubmit={onSubmit}>
@@ -168,7 +183,7 @@ export default function ProductForm() {
             <FieldLabel htmlFor="category">Category</FieldLabel>
             <Select
               onValueChange={onSelectChange}
-              value={productForm.category ?? undefined}
+              value={productForm.category || undefined}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select category" />

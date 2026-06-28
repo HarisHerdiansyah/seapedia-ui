@@ -15,3 +15,8 @@ export async function getStoreProductsFn(params: ProductParams) {
   const response = await apiClient.get("/stores/products", { params });
   return response.data;
 }
+
+export async function getStoreProductDetailFn(id: string) {
+  const response = await apiClient.get(`/stores/products/${id}`);
+  return response.data;
+}

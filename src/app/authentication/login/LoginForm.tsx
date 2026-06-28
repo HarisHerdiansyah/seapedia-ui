@@ -88,7 +88,7 @@ export default function LoginForm() {
         </FieldGroup>
         <Field>
           <Button type="submit" disabled={isPending}>
-            {isPending ? "Processing ...." : "Register"}
+            {isPending ? "Processing ...." : "Login"}
           </Button>
         </Field>
       </FieldSet>

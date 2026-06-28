@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useSearchParams } from "next/navigation";
 import {
   Table,
   TableHead,
@@ -22,12 +23,37 @@ import { toast } from "sonner";
 
 export default function ProductTable() {
   const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
+  const category = searchParams.get("category") ?? "";
+  const order = searchParams.get("order") ?? "";
+  const minPrice = searchParams.get("minPrice") ?? "0";
+  const maxPrice = searchParams.get("maxPrice") ?? "";
 
   const { data, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useInfiniteQuery({
-      queryKey: ["products", "seller"],
-      queryFn: ({ pageParam }) =>
-        getStoreProductsFn({ page: pageParam, size: 20 }),
+      queryKey: [
+        "products",
+        "seller",
+        { category, order, minPrice, maxPrice },
+      ],
+      queryFn: ({ pageParam }) => {
+        const payload = Object.fromEntries(
+          Object.entries({ category, order, minPrice, maxPrice }).filter(
+            ([key, value]) => {
+              if (key === "minPrice" || key === "maxPrice") {
+                if (value !== "" && Number(value) >= 0) return true;
+              }
+
+              if (key === "category" || key == "order") {
+                if (value !== "" && value !== null) return true;
+              }
+
+              return false;
+            },
+          ),
+        );
+        return getStoreProductsFn({ ...payload, page: pageParam, size: 20 });
+      },
       initialPageParam: 0,
       getNextPageParam: (lastPage, allPages, lastPageParam) => {
         if (lastPage.data.hasNext) {
@@ -73,7 +99,7 @@ export default function ProductTable() {
             <Fragment key={index}>
               {page.data.productData.length > 0 &&
                 page.data.productData.map((product: StoreProductData) => (
-                  <TableRow>
+                  <TableRow key={product.id}>
                     <TableCell>{product.name}</TableCell>
                     <TableCell>{product.category}</TableCell>
                     <TableCell>{product.price}</TableCell>

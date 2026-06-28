@@ -55,7 +55,7 @@ export default function ActiveRolePage() {
       setActiveRole(payload.activeRole, payload.accessToken, updatedUser);
 
       let redirectPath = "";
-      if (payload.activeRole === "BUYER") redirectPath = "/profile/dashboard";
+      if (payload.activeRole === "BUYER") redirectPath = "/profile";
       if (payload.activeRole === "SELLER") redirectPath = "/store/dashboard";
       router.push(redirectPath);
     },

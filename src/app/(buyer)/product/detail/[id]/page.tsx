@@ -1,125 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useImmer } from "use-immer";
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import { getProductDetailFn, getProductsFn } from "@/http/products";
+import { ProductDetailData, ProductData } from "@/http/types";
 import { Star, MapPin, Minus, Plus, ShoppingCart, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-
-const mockProducts = [
-  {
-    id: 1,
-    category: "Electronics & Gadgets",
-    productName: "Smartphone Super X Pro 128GB",
-    shopName: "Tech Store JKT",
-    location: "Jakarta Pusat",
-    price: 4500000,
-    rating: 4.8,
-  },
-  {
-    id: 2,
-    category: "Clothing & Fashion",
-    productName: "Kaos Polos Cotton Combed 30s Pria",
-    shopName: "FashionHub Official",
-    location: "Bandung",
-    price: 45000,
-    rating: 4.7,
-  },
-  {
-    id: 3,
-    category: "Beauty & Care",
-    productName: "Serum Wajah Glowing Ekstrak Mawar",
-    shopName: "BeautyQueen Kosmetik",
-    location: "Surabaya",
-    price: 125000,
-    rating: 4.9,
-  },
-  {
-    id: 4,
-    category: "Home & Living",
-    productName: "Sprei Katun Jepang Motif Bunga 180x200",
-    shopName: "HomeyHouse",
-    location: "Tangerang",
-    price: 250000,
-    rating: 4.6,
-  },
-  {
-    id: 5,
-    category: "Health & Wellness",
-    productName: "Vitamin C 1000mg + Zinc (Isi 30 Tablet)",
-    shopName: "Apotek Sehat Selalu",
-    location: "Semarang",
-    price: 55000,
-    rating: 4.8,
-  },
-  {
-    id: 6,
-    category: "Food & Beverages",
-    productName: "Kopi Arabica Gayo Roasting Medium 250gr",
-    shopName: "Kopi Nusantara",
-    location: "Malang",
-    price: 65000,
-    rating: 4.9,
-  },
-  {
-    id: 7,
-    category: "Sports & Outdoors",
-    productName: "Matras Yoga Anti Slip TPE Tebal 8mm",
-    shopName: "FitGear Equipment",
-    location: "Denpasar",
-    price: 150000,
-    rating: 4.7,
-  },
-  {
-    id: 8,
-    category: "Toys & Hobbies",
-    productName: "Action Figure Anime Koleksi Eksklusif",
-    shopName: "ToyBox Hobbies",
-    location: "Depok",
-    price: 350000,
-    rating: 4.8,
-  },
-  {
-    id: 9,
-    category: "Automotive",
-    productName: "Jas Hujan Setelan Motor Anti Rembes",
-    shopName: "AutoRide Accessories",
-    location: "Bekasi",
-    price: 85000,
-    rating: 4.5,
-  },
-  {
-    id: 10,
-    category: "Books & Stationery",
-    productName: "Buku Catatan Jurnal Aesthetic Hardcover",
-    shopName: "Pustaka Ilmu",
-    location: "Yogyakarta",
-    price: 40000,
-    rating: 4.9,
-  },
-  {
-    id: 11,
-    category: "Mother & Baby",
-    productName: "Popok Bayi Celana Size M 40 Pcs",
-    shopName: "BabyCare Center",
-    location: "Bogor",
-    price: 95000,
-    rating: 4.8,
-  },
-  {
-    id: 12,
-    category: "Pet Supplies",
-    productName: "Makanan Kucing Kering Rasa Salmon 1Kg",
-    shopName: "PetLover Store",
-    location: "Medan",
-    price: 48000,
-    rating: 4.7,
-  },
-];
+import { toRupiah } from "@/lib/utils";
+import ProductPanelSkeleton from "@/components/Product/ProductPanelSkeleton";
 
 export default function ProductDetailPage() {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [quantity, setQuantity] = useState(1);
+  const params = useParams<{ id: string }>();
+  const id = params?.id;
+
+  const {
+    data: productData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["product-detail", id],
+    queryFn: () => getProductDetailFn(id as string),
+    enabled: !!id,
+    select: (data) => data.data as ProductDetailData,
+  });
+
+  const { data: featuredProducts, isLoading: isFeaturedLoading } = useQuery({
+    queryKey: ["featured-products", productData?.category],
+    queryFn: () =>
+      getProductsFn({
+        category: productData?.category,
+        size: 5,
+        page: 0,
+        order: "NEWEST",
+      }),
+    enabled: !!productData?.category,
+    select: (data) => data.data as ProductData[],
+  });
+
+  const [isExpanded, setIsExpanded] = useImmer(false);
+  const [quantity, setQuantity] = useImmer(1);
 
   const handleDecrement = () => {
     if (quantity > 1) setQuantity(quantity - 1);
@@ -129,6 +51,20 @@ export default function ProductDetailPage() {
     setQuantity(quantity + 1);
   };
 
+  if (isLoading) {
+    return (
+      <div className="my-8 mx-auto text-center py-20">Loading product...</div>
+    );
+  }
+
+  if (isError || !productData) {
+    return (
+      <div className="my-8 mx-auto text-center py-20">
+        Failed to load product details.
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="my-8 mx-auto">
@@ -136,8 +72,11 @@ export default function ProductDetailPage() {
           <div className="bg-white rounded-2xl p-4 shadow-sm border border-border/50">
             <div className="relative w-full aspect-square rounded-xl overflow-hidden">
               <Image
-                src="https://placehold.co/400/ecfdf5/007a55.avif"
-                alt="Kaos Polos Cotton Combed 30s Pria"
+                src={
+                  productData.imageUrl ||
+                  "https://placehold.co/400/ecfdf5/007a55.avif"
+                }
+                alt={productData.name}
                 className="object-cover"
                 loading="eager"
                 fill
@@ -148,7 +87,7 @@ export default function ProductDetailPage() {
           <div className="bg-white rounded-2xl p-6 col-span-2 shadow-sm border border-border/50 flex flex-col gap-6">
             <section className="flex flex-col gap-3">
               <h1 className="text-3xl font-bold text-foreground">
-                Kaos Polos Cotton Combed 30s Pria
+                {productData.name}
               </h1>
               <article className="space-y-2">
                 <div className="flex flex-wrap items-center gap-6 text-sm">
@@ -156,19 +95,21 @@ export default function ProductDetailPage() {
                     <Star className="text-amber-400" fill="#fbbf24" size={18} />
                     <span>
                       Rating:{" "}
-                      <span className="font-semibold text-foreground">4.5</span>
+                      <span className="font-semibold text-foreground">
+                        {productData.rating}
+                      </span>
                       /5.0
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <MapPin className="text-primary" size={18} />
-                    <span>Location: Jakarta, Indonesia</span>
+                    <span>Location: {productData.location}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 text-sm">
                   <Store className="text-primary" size={18} />
                   <span className="hover:underline cursor-pointer">
-                    FashionHub Official
+                    {productData.storeName}
                   </span>
                 </div>
               </article>
@@ -184,10 +125,7 @@ export default function ProductDetailPage() {
                 <p
                   className={`text-muted-foreground leading-relaxed ${!isExpanded ? "line-clamp-2" : ""}`}
                 >
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris nisi ut aliquip ex ea commodo consequat.
+                  {productData.description}
                 </p>
                 <Button
                   variant="link"
@@ -200,7 +138,9 @@ export default function ProductDetailPage() {
             </section>
 
             <section className="mt-auto pt-4 flex flex-col gap-5">
-              <p className="text-3xl font-bold text-primary">Rp 45.000</p>
+              <p className="text-3xl font-bold text-primary">
+                {toRupiah(productData.price)}
+              </p>
 
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-3">
@@ -239,6 +179,11 @@ export default function ProductDetailPage() {
 
             <div className="mt-auto pt-4 flex flex-col gap-5">
               <p className="text-xl font-semibold">Categories</p>
+              <div className="flex flex-wrap gap-2">
+                <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">
+                  {productData.category}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -249,43 +194,48 @@ export default function ProductDetailPage() {
       </div>
 
       <div className="mt-8 mb-16">
-        <div className="grid grid-cols-5 gap-4 mt-2">
-          {mockProducts.map((product) => (
-            <div
-              key={product.id}
-              className="rounded-2xl overflow-hidden shadow-sm border border-border/50"
-            >
-              <div className="relative h-44">
-                <Image
-                  src="https://placehold.co/250/ecfdf5/007a55.avif"
-                  alt="Product"
-                  className="object-cover"
-                  loading="lazy"
-                  fill
-                />
+        {isFeaturedLoading ? (
+          <ProductPanelSkeleton gridSize={5} />
+        ) : (
+          <div className="grid grid-cols-5 gap-4 mt-2">
+            {featuredProducts?.map((product) => (
+              <div
+                key={product.id}
+                className="rounded-2xl overflow-hidden shadow-sm border border-border/50"
+              >
+                <div className="relative h-44">
+                  <Image
+                    src={
+                      product.imageUrl ||
+                      "https://placehold.co/250/ecfdf5/007a55.avif"
+                    }
+                    alt={product.name}
+                    className="object-cover"
+                    loading="lazy"
+                    fill
+                  />
+                </div>
+                <div className="p-4">
+                  <p className="text-sm text-right font-semibold mb-2">
+                    <Star
+                      className="inline-block text-amber-300"
+                      fill="#ffd230"
+                    />{" "}
+                    {product.rating}/5.0
+                  </p>
+                  <p className="text-sm line-clamp-2 mb-2">{product.name}</p>
+                  <p className="text-base font-semibold text-primary mb-2">
+                    {toRupiah(product.price)}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    <MapPin className="inline-block text-gray-500" size={14} />{" "}
+                    {product.location}
+                  </p>
+                </div>
               </div>
-              <div className="p-4">
-                <p className="text-sm text-right font-semibold mb-2">
-                  <Star
-                    className="inline-block text-amber-300"
-                    fill="#ffd230"
-                  />{" "}
-                  {product.rating}/5.0
-                </p>
-                <p className="text-sm line-clamp-2 mb-2">
-                  {product.productName}
-                </p>
-                <p className="text-base font-semibold text-primary mb-2">
-                  {product.price}
-                </p>
-                <p className="text-sm text-gray-500">
-                  <MapPin className="inline-block text-gray-500" size={14} />{" "}
-                  {product.location}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </>
   );
