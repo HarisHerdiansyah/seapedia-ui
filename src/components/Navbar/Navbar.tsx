@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, UserRound, Menu } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import {
   Sheet,
@@ -11,52 +11,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-
-function AuthenticatedAside({ role }: { role: string }) {
-  return (
-    <>
-      {role === "BUYER" && (
-        <Link href="/carts" className="w-full md:w-auto">
-          <Button
-            variant="outline"
-            size="lg"
-            className="border border-primary bg-primary-foreground cursor-pointer w-full"
-          >
-            <ShoppingCart />
-            Cart
-          </Button>
-        </Link>
-      )}
-      <Link href="/profile" className="w-full md:w-auto">
-        <Button size="lg" className="cursor-pointer w-full">
-          <UserRound />
-          Profile
-        </Button>
-      </Link>
-    </>
-  );
-}
-
-function UnauthenticatedAside() {
-  return (
-    <>
-      <Link href="/authentication/register" className="w-full md:w-auto">
-        <Button
-          variant="outline"
-          size="lg"
-          className="border border-primary bg-primary-foreground cursor-pointer w-full"
-        >
-          Sign Up
-        </Button>
-      </Link>
-      <Link href="/authentication/login" className="w-full md:w-auto">
-        <Button size="lg" className="cursor-pointer w-full">
-          Log In
-        </Button>
-      </Link>
-    </>
-  );
-}
+import AuthenticatedAside from "./AuthenticatedAside";
+import UnauthenticatedAside from "./UnauthenticatedAside";
+import SearchInput from "./SearchInput";
 
 export default function Navbar() {
   const { isLoggedIn, activeRole } = useAuth();
@@ -73,6 +30,8 @@ export default function Navbar() {
               Seapedia
             </Link>
           </div>
+
+          <SearchInput />
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-4">

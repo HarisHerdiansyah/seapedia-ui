@@ -42,6 +42,7 @@ export type OrderProductType = "NEWEST" | "OLDEST" | "PRICE_ASC" | "PRICE_DESC";
 export type ProductParams = {
   page: number;
   size: number;
+  search?: string;
   category?: string;
   minPrice?: number;
   maxPrice?: number;

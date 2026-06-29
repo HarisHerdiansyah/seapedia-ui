@@ -5,12 +5,15 @@ import { Filter } from "lucide-react";
 import { Suspense } from "react";
 
 import FilterForm from "./FilterForm";
-import ProductPanel from "@/components/Product/ProductPanel";
 import QueryProductPanel from "./QueryProductPanel";
 
 export default function ProductQueryPage() {
   return (
-    <Suspense fallback={<div className="my-8 text-center">Loading query results...</div>}>
+    <Suspense
+      fallback={
+        <div className="my-8 text-center">Loading query results...</div>
+      }
+    >
       <div className="my-8">
         <div className="mt-2 grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
           {/* Mobile Filter Button */}

@@ -9,28 +9,37 @@ import ProductPanel from "@/components/Product/ProductPanel";
 export default function QueryProductPanel() {
   const searchParams = useSearchParams();
   const category = searchParams.get("category") ?? "";
+  const search = searchParams.get("search") ?? "";
   const order = searchParams.get("order") ?? "";
   const minPrice = searchParams.get("minPrice") ?? "0";
   const maxPrice = searchParams.get("maxPrice") ?? "";
 
   const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useInfiniteQuery({
-      queryKey: ["products", "query", { category, order, minPrice, maxPrice }],
+      queryKey: [
+        "products",
+        "query",
+        { category, search, order, minPrice, maxPrice },
+      ],
       queryFn: ({ pageParam }) => {
         const payload = Object.fromEntries(
-          Object.entries({ category, order, minPrice, maxPrice }).filter(
-            ([key, value]) => {
-              if (key === "minPrice" || key === "maxPrice") {
-                if (value !== "" && Number(value) >= 0) return true;
-              }
+          Object.entries({
+            category,
+            order,
+            minPrice,
+            maxPrice,
+            search,
+          }).filter(([key, value]) => {
+            if (key === "minPrice" || key === "maxPrice") {
+              if (value !== "" && Number(value) >= 0) return true;
+            }
 
-              if (key === "category" || key == "order") {
-                if (value !== "" && value !== null) return true;
-              }
+            if (["category", "order", "search"].includes(key)) {
+              if (value !== "" && value !== null) return true;
+            }
 
-              return false;
-            },
-          ),
+            return false;
+          }),
         );
         return getProductsFn({ ...payload, page: pageParam, size: 20 });
       },
