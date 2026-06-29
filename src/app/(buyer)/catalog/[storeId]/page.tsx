@@ -1,4 +1,5 @@
 import { Store } from "lucide-react";
+import { Suspense } from "react";
 import StoreProfile from "../StoreProfile";
 import CatalogFilter from "../CatalogFilter";
 import CatalogProductPanel from "../CatalogProductPanel";
@@ -20,8 +21,10 @@ export default async function CatalogPage({
           <StoreProfile storeId={storeId} />
         </div>
       </div>
-      <CatalogFilter storeId={storeId} />
-      <CatalogProductPanel storeId={storeId} />
+      <Suspense fallback={<div className="p-4 text-center">Loading...</div>}>
+        <CatalogFilter storeId={storeId} />
+        <CatalogProductPanel storeId={storeId} />
+      </Suspense>
     </div>
   );
 }
