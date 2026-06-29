@@ -3,9 +3,18 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      new URL("https://placehold.co/**"),
-      new URL("https://picsum.photos/**"),
-      new URL("https://wilayah.id/**"),
+      {
+        protocol: "https",
+        hostname: "placehold.co",
+      },
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
+      },
+      {
+        protocol: "https",
+        hostname: "wilayah.id",
+      },
     ],
   },
   rewrites: async () => {

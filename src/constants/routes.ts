@@ -6,6 +6,7 @@ export const PUBLIC_ROUTES = [
   "/product",
   "/review",
   "/catalog",
+  "/cart",
 ];
 
 export const PRIVATE_ROUTES = [

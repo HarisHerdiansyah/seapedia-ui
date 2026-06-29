@@ -33,7 +33,7 @@ export default async function HomePage() {
 
       <div className="my-16">
         <h1 className="text-2xl font-bold text-primary">Explore Categories</h1>
-        <div className="grid grid-cols-5 gap-4 mt-2">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-2">
           {categories.map((cat: CategoryData) => (
             <Link
               key={cat.id}
@@ -66,7 +66,7 @@ export default async function HomePage() {
         >
           <CarouselContent>
             {appReviews.map((review: AppReviewData) => (
-              <CarouselItem key={review.id} className="basis-1/3">
+              <CarouselItem key={review.id} className="basis-full md:basis-1/2 lg:basis-1/3">
                 <TestimonialCard review={review} />
               </CarouselItem>
             ))}

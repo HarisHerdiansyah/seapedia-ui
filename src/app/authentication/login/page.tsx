@@ -10,7 +10,7 @@ import Link from "next/link";
 
 export default function LoginPage() {
   return (
-    <div className="w-full h-screen flex items-center justify-center">
+    <div className="w-full h-screen flex items-center justify-center p-4">
       <Card className="max-w-lg w-full shrink-0">
         <CardHeader>
           <CardTitle className="text-2xl text-center">Seapedia</CardTitle>
