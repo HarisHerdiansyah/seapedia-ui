@@ -1,8 +1,13 @@
 import { useUserStore } from "@/store/userStore";
 import axios from "axios";
 
+const BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://seapedia-api-latest.onrender.com/api"
+    : "http://localhost:8000/api";
+
 export const apiClient = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL: BASE_URL,
   timeout: 5000,
   headers: {
     "Access-Control-Allow-Origin": true,
@@ -11,7 +16,7 @@ export const apiClient = axios.create({
 });
 
 export const serverApiClient = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL: BASE_URL,
   timeout: 5000,
   headers: {
     "Access-Control-Allow-Origin": true,
@@ -71,7 +76,7 @@ apiClient.interceptors.response.use(
 
       try {
         const response = await axios.post(
-          "http://localhost:8080/api/authentication/refresh-token",
+          `${BASE_URL}/authentication/refresh-token`,
           {},
           {
             withCredentials: true,
