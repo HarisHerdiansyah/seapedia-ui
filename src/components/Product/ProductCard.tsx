@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { MapPin, Star } from "lucide-react";
 import { ProductData } from "@/http/types";
 import { toRupiah } from "@/lib/utils";
@@ -24,9 +25,14 @@ export default function ProductCard({ product }: ProductCardProps) {
       <div className="p-4">
         <p className="text-sm text-right font-semibold mb-2">
           <Star className="inline-block text-amber-300" fill="#ffd230" />{" "}
-          5.0/5.0
+          {product.rating}/5.0
         </p>
-        <p className="text-sm line-clamp-2 mb-2 min-h-10">{product.name}</p>
+        <Link
+          href={`/product/detail/${product.id}`}
+          className="text-sm line-clamp-2 mb-2 min-h-10 hover:underline cursor-pointer"
+        >
+          {product.name}
+        </Link>
         <p className="text-base font-semibold text-primary mb-2">
           {toRupiah(product.price)}
         </p>

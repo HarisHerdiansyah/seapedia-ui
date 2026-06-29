@@ -20,3 +20,18 @@ export async function getStoreProductDetailFn(id: string) {
   const response = await apiClient.get(`/stores/products/${id}`);
   return response.data;
 }
+
+export async function getStoreProfileFn(id: string) {
+  const response = await apiClient.get(`/stores/${id}/profile`);
+  return response.data;
+}
+
+export async function getStoreCategoriesFn(id: string) {
+  const response = await apiClient.get(`/stores/${id}/categories`);
+  return response.data;
+}
+
+export async function getStoreCatalogFn(id: string, params: ProductParams) {
+  const response = await apiClient.get(`/stores/${id}/catalog`, { params });
+  return response.data;
+}

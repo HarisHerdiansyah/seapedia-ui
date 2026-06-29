@@ -15,11 +15,7 @@ export default function QueryProductPanel() {
 
   const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useInfiniteQuery({
-      queryKey: [
-        "products",
-        "homepage",
-        { category, order, minPrice, maxPrice },
-      ],
+      queryKey: ["products", "query", { category, order, minPrice, maxPrice }],
       queryFn: ({ pageParam }) => {
         const payload = Object.fromEntries(
           Object.entries({ category, order, minPrice, maxPrice }).filter(

@@ -2,6 +2,7 @@
 
 import { useImmer } from "use-immer";
 import Image from "next/image";
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { getProductDetailFn, getProductsFn } from "@/http/products";
@@ -11,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { toRupiah } from "@/lib/utils";
 import ProductPanelSkeleton from "@/components/Product/ProductPanelSkeleton";
+import ProductCard from "@/components/Product/ProductCard";
 
 export default function ProductDetailPage() {
   const params = useParams<{ id: string }>();
@@ -28,16 +30,16 @@ export default function ProductDetailPage() {
   });
 
   const { data: featuredProducts, isLoading: isFeaturedLoading } = useQuery({
-    queryKey: ["featured-products", productData?.category],
+    queryKey: ["featured-products", productData?.categoryId],
     queryFn: () =>
       getProductsFn({
-        category: productData?.category,
+        category: productData?.categoryId,
         size: 5,
         page: 0,
         order: "NEWEST",
       }),
     enabled: !!productData?.category,
-    select: (data) => data.data as ProductData[],
+    select: (data) => data.data.productData as ProductData[],
   });
 
   const [isExpanded, setIsExpanded] = useImmer(false);
@@ -108,9 +110,11 @@ export default function ProductDetailPage() {
                 </div>
                 <div className="flex items-center gap-1.5 text-sm">
                   <Store className="text-primary" size={18} />
-                  <span className="hover:underline cursor-pointer">
-                    {productData.storeName}
-                  </span>
+                  <Link href={`/catalog/${productData.storeId}`}>
+                    <span className="hover:underline cursor-pointer">
+                      {productData.storeName}
+                    </span>
+                  </Link>
                 </div>
               </article>
             </section>
@@ -199,40 +203,7 @@ export default function ProductDetailPage() {
         ) : (
           <div className="grid grid-cols-5 gap-4 mt-2">
             {featuredProducts?.map((product) => (
-              <div
-                key={product.id}
-                className="rounded-2xl overflow-hidden shadow-sm border border-border/50"
-              >
-                <div className="relative h-44">
-                  <Image
-                    src={
-                      product.imageUrl ||
-                      "https://placehold.co/250/ecfdf5/007a55.avif"
-                    }
-                    alt={product.name}
-                    className="object-cover"
-                    loading="lazy"
-                    fill
-                  />
-                </div>
-                <div className="p-4">
-                  <p className="text-sm text-right font-semibold mb-2">
-                    <Star
-                      className="inline-block text-amber-300"
-                      fill="#ffd230"
-                    />{" "}
-                    {product.rating}/5.0
-                  </p>
-                  <p className="text-sm line-clamp-2 mb-2">{product.name}</p>
-                  <p className="text-base font-semibold text-primary mb-2">
-                    {toRupiah(product.price)}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    <MapPin className="inline-block text-gray-500" size={14} />{" "}
-                    {product.location}
-                  </p>
-                </div>
-              </div>
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         )}

@@ -71,6 +71,7 @@ export type ProductPayload = {
 export type ProductDetailData = {
   id: string;
   name: string;
+  categoryId: string;
   category: string;
   price: number;
   stock: number;
@@ -78,6 +79,7 @@ export type ProductDetailData = {
   rating: number;
   imageUrl: string;
   location: string;
+  storeId: string;
   storeName: string;
 };
 
@@ -109,4 +111,11 @@ export type StoreProductDetailData = {
   stock: number;
   description: string;
   imageUrl: string;
+};
+
+export type StoreProfileData = {
+  id: string;
+  storeName: string;
+  ownerEmail: string;
+  location: string;
 };
